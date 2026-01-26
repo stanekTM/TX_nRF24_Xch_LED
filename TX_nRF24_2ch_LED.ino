@@ -2,7 +2,7 @@
   ****************************************************************************************************************
   RC transmitter
   **************
-  Simple 4 channel RC transmitter from my repository https://github.com/stanekTM/TX_nRF24_4ch_LED
+  Simple surface 2 channel RC transmitter from my repository https://github.com/stanekTM/TX_nRF24_2ch_LED
   
   This RC transmitter works with RC receiver from my repository https://github.com/stanekTM/RX_nRF24_Motor_Servo
   
@@ -29,9 +29,13 @@ const byte address[] = "jirka";
 #define RX_BATTERY_VOLTAGE    4.2  // Maximum nominal battery voltage
 #define RX_MONITORED_VOLTAGE  3.45 // Minimum battery voltage for alarm
 
-// Full deflection of pots
-#define EPA_POSITIVE          500
-#define EPA_NEGATIVE         -500
+// Number of channels
+#define CHANNELS  2
+
+// Control range value
+#define MIN_CONTROL_VAL  1000
+#define MID_CONTROL_VAL  1500
+#define MAX_CONTROL_VAL  2000
 
 // ATmega328P/PB pins overview
 // PD0 - D0   PWM  328PB
@@ -67,8 +71,6 @@ const byte address[] = "jirka";
 // Pins for pots, joysticks
 // Joystick 1             A0
 // Joystick 2             A1
-// Joystick 3             A2
-// Joystick 4             A3
 
 // LED alarm
 #define PIN_LED           6
@@ -98,8 +100,6 @@ struct rc_packet_size
 {
   unsigned int ch1 = 1500; // A0
   unsigned int ch2 = 1500; // A1
-  unsigned int ch3 = 1500; // A2
-  unsigned int ch4 = 1500; // A3
 };
 rc_packet_size rc_packet;
 
@@ -117,46 +117,33 @@ telemetry_packet_size telemetry_packet;
 //*********************************************************************************************************************
 // Read pots, joysticks
 //*********************************************************************************************************************
-int ch, raw_pots;
-int pot_calib_min[] = {0, 0, 0, 0};
-int pot_calib_mid[] = {512, 512, 512, 512};
-int pot_calib_max[] = {1023, 1023, 1023, 1023};
-int pots_value[] = {1500, 1500, 1500, 1500};
-byte reverse[] = {0, 0, 0, 0};
+int i, raw_pots;
+int pots_value[] = {1500, 1500};
+int min_pots_calib[] = {0, 0};
+int mid_pots_calib[] = {512, 512};
+int max_pots_calib[] = {1023, 1023};
+byte reverse[] = {0, 0};
 
 void read_pots()
 {
-  for (ch = 0; ch < 4; ch++)
+  for (i = 0; i < CHANNELS; i++)
   {
-    raw_pots = analogRead(ch);
+    raw_pots = analogRead(i);
     
-    if (raw_pots > pot_calib_mid[ch])
+    if (raw_pots < mid_pots_calib[i])
     {
-      pots_value[ch] = map(raw_pots, pot_calib_mid[ch], pot_calib_min[ch], 0, EPA_POSITIVE);
+      pots_value[i] = map(raw_pots, min_pots_calib[i], mid_pots_calib[i], MIN_CONTROL_VAL, MID_CONTROL_VAL);
     }
     else
     {
-      pots_value[ch] = map(raw_pots, pot_calib_max[ch], pot_calib_mid[ch], EPA_NEGATIVE, 0);
+      pots_value[i] = map(raw_pots, mid_pots_calib[i], max_pots_calib[i], MID_CONTROL_VAL, MAX_CONTROL_VAL);
     }
-  }
-  
-  // Format the frame
-  for (ch = 0; ch < 4; ch++)
-  {
-    pots_value[ch] += 1500;
     
-    pots_value[ch] = constrain(pots_value[ch], 1000, 2000);
-    
-    if (reverse[ch] == 1)
-    {
-      pots_value[ch] = 3000 - pots_value[ch];
-    }
+    if (reverse[i] == 1) pots_value[i] = (MIN_CONTROL_VAL + MAX_CONTROL_VAL) - pots_value[i];
   }
   
   rc_packet.ch1 = pots_value[0]; // A0
   rc_packet.ch2 = pots_value[1]; // A1
-  rc_packet.ch3 = pots_value[2]; // A2
-  rc_packet.ch4 = pots_value[3]; // A3
   
   //Serial.println(rc_packet.ch1);
 }
@@ -172,52 +159,52 @@ void calibrate_reverse_pots()
   {
     calibrate = 0;
     
-    for (int pot = 0; pot < 4; pot++)
+    for (int j = 0; j < CHANNELS; j++)
     {
-      raw_pots = analogRead(pot);
-
-      if (raw_pots > pot_calib_min[pot])
+      raw_pots = analogRead(j);
+      
+      if (raw_pots > min_pots_calib[j])
       {
-        pot_calib_min[pot] = raw_pots;
+        min_pots_calib[j] = raw_pots;
       }
       
-      if (raw_pots < pot_calib_max[pot])
+      if (raw_pots < max_pots_calib[j])
       {
-        pot_calib_max[pot] = raw_pots;
+        max_pots_calib[j] = raw_pots;
       }
       
-      pot_calib_mid[pot] = raw_pots; // Save neutral pots, joysticks as button is released
+      mid_pots_calib[j] = raw_pots; // Save neutral pots, joysticks as button is released
     }
   } // Calibrate button released
   
   if (calibrate == 0)
   {
-    for (ch = 0; ch < 4; ch++)
+    for (i = 0; i < CHANNELS; i++)
     {
-      EEPROMWriteInt(ch * 6,     pot_calib_max[ch]); // EEPROM locations  0,  6, 12, 18 (decimal)
-      EEPROMWriteInt(ch * 6 + 2, pot_calib_mid[ch]); // EEPROM locations  2,  8, 14, 20 (decimal)
-      EEPROMWriteInt(ch * 6 + 4, pot_calib_min[ch]); // EEPROM locations  4, 10, 16, 22 (decimal)
+      EEPROMWriteInt(i * 6,     max_pots_calib[i]); // EEPROM locations  0,  6, 12, 18 (decimal)
+      EEPROMWriteInt(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations  2,  8, 14, 20 (decimal)
+      EEPROMWriteInt(i * 6 + 4, min_pots_calib[i]); // EEPROM locations  4, 10, 16, 22 (decimal)
     }
     calibrate = 1;
   }
   
-  for (ch = 0; ch < 4; ch++)
+  for (i = 0; i < CHANNELS; i++)
   {
-    pot_calib_max[ch] = EEPROMReadInt(ch * 6);     // EEPROM locations  0,  6, 12, 18 (decimal)
-    pot_calib_mid[ch] = EEPROMReadInt(ch * 6 + 2); // EEPROM locations  2,  8, 14, 20 (decimal)
-    pot_calib_min[ch] = EEPROMReadInt(ch * 6 + 4); // EEPROM locations  4, 10, 16, 22 (decimal)
-    reverse[ch] = EEPROM.read(ch + 24) & 1;        // EEPROM locations 24, 25, 26, 27 (decimal)
+    max_pots_calib[i] = EEPROMReadInt(i * 6);     // EEPROM locations  0,  6, 12, 18 (decimal)
+    mid_pots_calib[i] = EEPROMReadInt(i * 6 + 2); // EEPROM locations  2,  8, 14, 20 (decimal)
+    min_pots_calib[i] = EEPROMReadInt(i * 6 + 4); // EEPROM locations  4, 10, 16, 22 (decimal)
+    reverse[i] = EEPROM.read(i + 24) & 1;         // EEPROM locations 24, 25, 26, 27 (decimal)
   }
   
   // Check for reversing, stick over on power-up
-  for (ch = 0; ch < 4; ch++)
+  for (i = 0; i < CHANNELS; i++)
   {
-    pots_value[ch] = map(analogRead(ch), pot_calib_max[ch], pot_calib_min[ch], EPA_NEGATIVE, EPA_POSITIVE);
+    pots_value[i] = map(analogRead(i), min_pots_calib[i], max_pots_calib[i], MIN_CONTROL_VAL, MAX_CONTROL_VAL);
     
-    if (pots_value[ch] > EPA_POSITIVE - 50 || pots_value[ch] < EPA_NEGATIVE + 50)
+    if (pots_value[i] > MIN_CONTROL_VAL - 50 || pots_value[i] < MAX_CONTROL_VAL + 50)
     {
-      reverse[ch] ^= B00000001;
-      EEPROM.write(24 + ch, reverse[ch]);
+      reverse[i] ^= B00000001;
+      EEPROM.write(24 + i, reverse[i]);
     }
   }
 }
@@ -315,7 +302,7 @@ void TX_batt_monitoring()
 // RX battery voltage monitoring
 //*********************************************************************************************************************
 bool rx_low_batt = 0;
-bool previous_state_batt;
+bool previous_state_batt = 0;
 
 void RX_batt_monitoring()
 {
