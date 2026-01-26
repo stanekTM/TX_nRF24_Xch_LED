@@ -151,7 +151,7 @@ void read_pots()
 //*********************************************************************************************************************
 // Calibrate or reverse the pots, joysticks
 //*********************************************************************************************************************
-int calibrate = 1;
+bool calibrate = 1;
 
 void calibrate_reverse_pots()
 {
@@ -159,21 +159,15 @@ void calibrate_reverse_pots()
   {
     calibrate = 0;
     
-    for (int j = 0; j < CHANNELS; j++)
+    for (i = 0; i < CHANNELS; i++)
     {
-      raw_pots = analogRead(j);
+      raw_pots = analogRead(i);
       
-      if (raw_pots > min_pots_calib[j])
-      {
-        min_pots_calib[j] = raw_pots;
-      }
+      if (raw_pots < min_pots_calib[i]) min_pots_calib[i] = raw_pots;
       
-      if (raw_pots < max_pots_calib[j])
-      {
-        max_pots_calib[j] = raw_pots;
-      }
+      if (raw_pots > max_pots_calib[i]) max_pots_calib[i] = raw_pots;
       
-      mid_pots_calib[j] = raw_pots; // Save neutral pots, joysticks as button is released
+      mid_pots_calib[i] = raw_pots; // Save neutral pots, joysticks as button is released
     }
   } // Calibrate button released
   
@@ -201,33 +195,12 @@ void calibrate_reverse_pots()
   {
     pots_value[i] = map(analogRead(i), min_pots_calib[i], max_pots_calib[i], MIN_CONTROL_VAL, MAX_CONTROL_VAL);
     
-    if (pots_value[i] > MIN_CONTROL_VAL - 50 || pots_value[i] < MAX_CONTROL_VAL + 50)
+    if (pots_value[i] < MIN_CONTROL_VAL + 50 || pots_value[i] > MAX_CONTROL_VAL - 50)
     {
       reverse[i] ^= B00000001;
       EEPROM.write(24 + i, reverse[i]);
     }
   }
-}
-
-//*********************************************************************************************************************
-// This function will write a 2 byte integer to the eeprom at the specified address and address + 1
-//*********************************************************************************************************************
-void EEPROMWriteInt(int p_address, int p_value)
-{
-  byte lowByte = p_value % 256;
-  byte highByte = p_value / 256;
-  EEPROM.write(p_address, lowByte);
-  EEPROM.write(p_address + 1, highByte);
-}
-
-//*********************************************************************************************************************
-// This function will read a 2 byte integer from the eeprom at the specified address and address + 1
-//*********************************************************************************************************************
-unsigned int EEPROMReadInt(int p_address)
-{
-  byte lowByte = EEPROM.read(p_address);
-  byte highByte = EEPROM.read(p_address + 1);
-  return lowByte + highByte * 256;
 }
 
 //*********************************************************************************************************************
@@ -357,5 +330,26 @@ void blink(uint8_t pin, uint16_t interval)
     
     digitalWrite(pin, led_state);
   }
+}
+
+//*********************************************************************************************************************
+// This function will write a 2 byte integer to the eeprom at the specified address and address + 1
+//*********************************************************************************************************************
+void EEPROMWriteInt(int p_address, int p_value)
+{
+  byte lowByte = p_value % 256;
+  byte highByte = p_value / 256;
+  EEPROM.write(p_address, lowByte);
+  EEPROM.write(p_address + 1, highByte);
+}
+
+//*********************************************************************************************************************
+// This function will read a 2 byte integer from the eeprom at the specified address and address + 1
+//*********************************************************************************************************************
+unsigned int EEPROMReadInt(int p_address)
+{
+  byte lowByte = EEPROM.read(p_address);
+  byte highByte = EEPROM.read(p_address + 1);
+  return lowByte + highByte * 256;
 }
  
