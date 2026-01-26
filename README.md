@@ -1,5 +1,5 @@
 # RC transmitter
-Simple 4 channel RC transmitter.
+Simple surface 2 channel RC transmitter.
 Includes nRF24L01+ transceiver and ATmega328P processor.
 Telemetry monitors receiver voltage using LED indication.
 The code is Arduino.
@@ -25,8 +25,6 @@ Thanks to "Phil_G" http://www.singlechannel.co.uk for the calibration and revers
 ```
 A0 - joystick 1
 A1 - joystick 2
-A2 - joystick 3
-A3 - joystick 4
 
 D4 - calibration button
 D6 - LED
