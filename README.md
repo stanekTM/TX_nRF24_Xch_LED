@@ -6,8 +6,6 @@ The code is Arduino.
 
 This RC transmitter works with RC receiver from my repository [**RX_nRF24_Motor_Servo**](https://github.com/stanekTM/RX_nRF24_Motor_Servo)
 
-Thanks to "Phil_G" http://www.singlechannel.co.uk for the calibration and reversal routine used in the code.
-
 ## The firmware includes
 ### LED mode:
 * Normal mode, LED is lit
@@ -15,8 +13,8 @@ Thanks to "Phil_G" http://www.singlechannel.co.uk for the calibration and revers
 * If the RX battery is low, the LED blink at 0.3s interval
 * If we lose RF data for 1 second, the LED blink at 0.1s interval
 ### Calibration:
-* Hold calibration button, switch transmitter TX on, still holding calibration button move all controls to extremes including auxilliary pots.
-* Center all controls and aux pots.
+* Hold calibration button, switch transmitter TX on, still holding calibration button move all controls to extremes.
+* Center all controls.
 * Release calibration button (saved to eeprom).
 ### Servo reversing:
 * To reverse the desired channel, hold the joystick in the end position and turn on the TX transmitter (saved to eeprom).
