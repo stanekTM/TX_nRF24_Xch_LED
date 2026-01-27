@@ -94,14 +94,10 @@ const byte address[] = "jirka";
 RF24 radio(PIN_CE, PIN_CSN);
 
 //*********************************************************************************************************************
-// This structure defines the data sent (max 32 bytes)
+// This array declares the data sent (max 32 bytes)
 //*********************************************************************************************************************
-struct rc_packet_size
-{
-  unsigned int ch1 = 1500; // A0
-  unsigned int ch2 = 1500; // A1
-};
-rc_packet_size rc_packet;
+unsigned int rc_packet[CHANNELS] = {1500};
+byte rc_packet_size = CHANNELS * 2; // For one control channel with a value of 1000 to 2000 we need 2 bytes(packets)
 
 //*********************************************************************************************************************
 // This structure defines the received ACK payload data
@@ -118,11 +114,11 @@ telemetry_packet_size telemetry_packet;
 // Read pots, joysticks
 //*********************************************************************************************************************
 int i, raw_pots;
-int pots_value[] = {1500, 1500};
-int min_pots_calib[] = {0, 0};
-int mid_pots_calib[] = {512, 512};
-int max_pots_calib[] = {1023, 1023};
-byte reverse[] = {0, 0};
+int pots_value[CHANNELS] = {1500};
+int min_pots_calib[CHANNELS] = {0};
+int mid_pots_calib[CHANNELS] = {512};
+int max_pots_calib[CHANNELS] = {1023};
+byte reverse[CHANNELS] = {0};
 
 void read_pots()
 {
@@ -140,12 +136,10 @@ void read_pots()
     }
     
     if (reverse[i] == 1) pots_value[i] = (MIN_CONTROL_VAL + MAX_CONTROL_VAL) - pots_value[i];
+    
+    rc_packet[i] = pots_value[i];
   }
-  
-  rc_packet.ch1 = pots_value[0]; // A0
-  rc_packet.ch2 = pots_value[1]; // A1
-  
-  //Serial.println(rc_packet.ch1);
+  //Serial.println(rc_packet[0]);
 }
 
 //*********************************************************************************************************************
@@ -167,7 +161,7 @@ void calibrate_reverse_pots()
       
       if (raw_pots > max_pots_calib[i]) max_pots_calib[i] = raw_pots;
       
-      mid_pots_calib[i] = raw_pots; // Save neutral pots, joysticks as button is released
+      mid_pots_calib[i] = raw_pots;
     }
   } // Calibrate button released
   
@@ -248,7 +242,7 @@ unsigned long rf_timeout = 0;
 
 void send_and_receive_data()
 {
-  if (radio.write(&rc_packet, sizeof(rc_packet_size)))
+  if (radio.write(&rc_packet, rc_packet_size))
   {
     if (radio.available())
     {
