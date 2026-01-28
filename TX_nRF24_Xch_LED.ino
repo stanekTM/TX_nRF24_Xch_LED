@@ -2,7 +2,9 @@
   ****************************************************************************************************************
   RC transmitter
   **************
-  Simple surface 2 channel RC transmitter from my repository https://github.com/stanekTM/TX_nRF24_2ch_LED
+  Simple RC transmitter with 1 to 7 channels from my repository https://github.com/stanekTM/TX_nRF24_Xch_LED
+  
+  Includes nRF24L01+ transceiver and ATmega328P processor.
   
   This RC transmitter works with RC receiver from my repository https://github.com/stanekTM/RX_nRF24_Motor_Servo
   
@@ -29,7 +31,7 @@ const byte address[] = "jirka";
 #define RX_BATTERY_VOLTAGE    4.2  // Maximum nominal battery voltage
 #define RX_MONITORED_VOLTAGE  3.45 // Minimum battery voltage for alarm
 
-// Number of channels
+// Set the number of channels according to the controls (max 7 / A0 to A6)
 #define CHANNELS  2
 
 // Control range value
@@ -68,9 +70,8 @@ const byte address[] = "jirka";
 // ADC6   -    A6
 // ADC7   -    A7
 
-// Pins for pots, joysticks
-// Joystick 1             A0
-// Joystick 2             A1
+// Analog input pin array for pots (possible combination)
+const byte pins_pots[] = {A0, A1, A2, A3, A4, A5, A6};
 
 // LED alarm
 #define PIN_LED           6
@@ -124,7 +125,7 @@ void read_pots()
 {
   for (i = 0; i < CHANNELS; i++)
   {
-    raw_pots = analogRead(i);
+    raw_pots = analogRead(pins_pots[i]);
     
     if (raw_pots < mid_pots_calib[i])
     {
@@ -155,7 +156,7 @@ void calibrate_reverse_pots()
     
     for (i = 0; i < CHANNELS; i++)
     {
-      raw_pots = analogRead(i);
+      raw_pots = analogRead(pins_pots[i]);
       
       if (raw_pots < min_pots_calib[i]) min_pots_calib[i] = raw_pots;
       
@@ -187,7 +188,7 @@ void calibrate_reverse_pots()
   // Check for reversing, stick over on power-up
   for (i = 0; i < CHANNELS; i++)
   {
-    pots_value[i] = map(analogRead(i), min_pots_calib[i], max_pots_calib[i], MIN_CONTROL_VAL, MAX_CONTROL_VAL);
+    pots_value[i] = map(analogRead(pins_pots[i]), min_pots_calib[i], max_pots_calib[i], MIN_CONTROL_VAL, MAX_CONTROL_VAL);
     
     if (pots_value[i] < MIN_CONTROL_VAL + 50 || pots_value[i] > MAX_CONTROL_VAL - 50)
     {
@@ -260,7 +261,7 @@ bool tx_low_batt = 0;
 
 void TX_batt_monitoring()
 {
-  tx_low_batt = analogRead(PIN_BATTERY) <= (1023 / TX_BATTERY_VOLTAGE) * TX_MONITORED_VOLTAGE;
+  //tx_low_batt = analogRead(PIN_BATTERY) <= (1023 / TX_BATTERY_VOLTAGE) * TX_MONITORED_VOLTAGE;
   
   //Serial.println(tx_low_batt);
 }
