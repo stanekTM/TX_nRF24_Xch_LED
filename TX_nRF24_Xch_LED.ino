@@ -112,7 +112,7 @@ struct telemetry_packet_size
 telemetry_packet_size telemetry_packet;
 
 //*********************************************************************************************************************
-// Read pots, joysticks
+// Read pots
 //*********************************************************************************************************************
 int i, raw_pots;
 int pots_value[CHANNELS] = {1500};
@@ -144,7 +144,7 @@ void read_pots()
 }
 
 //*********************************************************************************************************************
-// Calibrate or reverse the pots, joysticks
+// Calibrate or reverse the pots
 //*********************************************************************************************************************
 bool calibrate = 1;
 
@@ -261,7 +261,7 @@ bool tx_low_batt = 0;
 
 void TX_batt_monitoring()
 {
-  //tx_low_batt = analogRead(PIN_BATTERY) <= (1023 / TX_BATTERY_VOLTAGE) * TX_MONITORED_VOLTAGE;
+  tx_low_batt = analogRead(PIN_BATTERY) <= (1023 / TX_BATTERY_VOLTAGE) * TX_MONITORED_VOLTAGE;
   
   //Serial.println(tx_low_batt);
 }
