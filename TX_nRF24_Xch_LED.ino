@@ -70,7 +70,7 @@ const byte address[] = "jirka";
 // ADC6   -    A6
 // ADC7   -    A7
 
-// Analog input pin array for pots (possible combination)
+// Analog input pin array for pots (possible combination, max 7)
 const byte pins_pots[] = {A0, A1, A2, A3, A4, A5, A6};
 
 // LED alarm

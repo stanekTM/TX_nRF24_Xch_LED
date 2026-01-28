@@ -22,7 +22,7 @@ This RC transmitter works with RC receiver from my repository [**RX_nRF24_Motor_
 ## Arduino pins
 ```
 Pots:
-Number of channels according to control elements (max 7)
+Number of channels according to control elements (possible combination, max 7)
 A0 to A6
 
 D4 - calibration button
