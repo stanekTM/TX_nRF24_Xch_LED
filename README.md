@@ -21,8 +21,9 @@ This RC transmitter works with RC receiver from my repository [**RX_nRF24_Motor_
 
 ## Arduino pins
 ```
-A0 - joystick 1
-A1 - joystick 2
+Pots:
+Number of channels according to control elements (max 7)
+A0 to A6
 
 D4 - calibration button
 D6 - LED
