@@ -1,5 +1,5 @@
 # RC transmitter
-Simple RC transmitter with 1 to 7 channels.
+RC transmitter with 1 to 7 channels.
 Includes nRF24L01+ transceiver and ATmega328P processor.
 Telemetry monitors receiver voltage using LED indication.
 The code is Arduino.

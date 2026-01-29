@@ -2,7 +2,7 @@
   ****************************************************************************************************************
   RC transmitter
   **************
-  Simple RC transmitter with 1 to 7 channels from my repository https://github.com/stanekTM/TX_nRF24_Xch_LED
+  RC transmitter with 1 to 7 channels from my repository https://github.com/stanekTM/TX_nRF24_Xch_LED
   
   Includes nRF24L01+ transceiver and ATmega328P processor.
   
