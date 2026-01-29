@@ -22,7 +22,7 @@
 const byte address[] = "jirka";
 
 // RF communication channel setting (0-125, 2.4Ghz + 76 = 2.476Ghz)
-#define RADIO_CHANNEL         76
+#define RF_CHANNEL         76
 
 // TX/RX alarm voltage setting
 #define TX_BATTERY_VOLTAGE    4.2  // Maximum nominal battery voltage
@@ -32,7 +32,7 @@ const byte address[] = "jirka";
 #define RX_MONITORED_VOLTAGE  3.45 // Minimum battery voltage for alarm
 
 // Set the number of channels according to the controls (max 7 / A0 to A6)
-#define CHANNELS  2
+#define RC_CHANNELS  2
 
 // Control range value
 #define MIN_CONTROL_VAL  1000
@@ -97,8 +97,8 @@ RF24 radio(PIN_CE, PIN_CSN);
 //*********************************************************************************************************************
 // Sent data array (max 32 bytes)
 //*********************************************************************************************************************
-unsigned int rc_packet[CHANNELS] = {1500};
-byte rc_packet_size = CHANNELS * 2; // For one control channel with a value of 1000 to 2000 we need 2 bytes(packets)
+unsigned int rc_packet[RC_CHANNELS] = {1500};
+byte rc_packet_size = RC_CHANNELS * 2; // For one control channel with a value of 1000 to 2000 we need 2 bytes(packets)
 
 //*********************************************************************************************************************
 // Structure of received ACK data
@@ -115,15 +115,15 @@ telemetry_packet_size telemetry_packet;
 // Read pots
 //*********************************************************************************************************************
 int i, raw_pots;
-int pots_value[CHANNELS] = {1500};
-int min_pots_calib[CHANNELS] = {0};
-int mid_pots_calib[CHANNELS] = {512};
-int max_pots_calib[CHANNELS] = {1023};
-byte reverse[CHANNELS] = {0};
+int pots_value[RC_CHANNELS] = {1500};
+int min_pots_calib[RC_CHANNELS] = {0};
+int mid_pots_calib[RC_CHANNELS] = {512};
+int max_pots_calib[RC_CHANNELS] = {1023};
+byte reverse[RC_CHANNELS] = {0};
 
 void read_pots()
 {
-  for (i = 0; i < CHANNELS; i++)
+  for (i = 0; i < RC_CHANNELS; i++)
   {
     raw_pots = analogRead(pins_pots[i]);
     
@@ -154,7 +154,7 @@ void calibrate_reverse_pots()
   {
     calibrate = 0;
     
-    for (i = 0; i < CHANNELS; i++)
+    for (i = 0; i < RC_CHANNELS; i++)
     {
       raw_pots = analogRead(pins_pots[i]);
       
@@ -168,7 +168,7 @@ void calibrate_reverse_pots()
   
   if (calibrate == 0)
   {
-    for (i = 0; i < CHANNELS; i++)
+    for (i = 0; i < RC_CHANNELS; i++)
     {
       EEPROMWriteInt(i * 6,     max_pots_calib[i]); // EEPROM locations  0,  6, 12, 18 (decimal)
       EEPROMWriteInt(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations  2,  8, 14, 20 (decimal)
@@ -177,7 +177,7 @@ void calibrate_reverse_pots()
     calibrate = 1;
   }
   
-  for (i = 0; i < CHANNELS; i++)
+  for (i = 0; i < RC_CHANNELS; i++)
   {
     max_pots_calib[i] = EEPROMReadInt(i * 6);     // EEPROM locations  0,  6, 12, 18 (decimal)
     mid_pots_calib[i] = EEPROMReadInt(i * 6 + 2); // EEPROM locations  2,  8, 14, 20 (decimal)
@@ -186,7 +186,7 @@ void calibrate_reverse_pots()
   }
   
   // Check for reversing, stick over on power-up
-  for (i = 0; i < CHANNELS; i++)
+  for (i = 0; i < RC_CHANNELS; i++)
   {
     pots_value[i] = map(analogRead(pins_pots[i]), min_pots_calib[i], max_pots_calib[i], MIN_CONTROL_VAL, MAX_CONTROL_VAL);
     
@@ -217,7 +217,7 @@ void setup()
   radio.enableAckPayload();
   radio.enableDynamicPayloads();
   radio.setRetries(2, 0);
-  radio.setChannel(RADIO_CHANNEL);
+  radio.setChannel(RF_CHANNEL);
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_MIN); // RF24_PA_MIN (-18dBm), RF24_PA_LOW (-12dBm), RF24_PA_HIGH (-6dbm), RF24_PA_MAX (0dBm)
   radio.stopListening();
