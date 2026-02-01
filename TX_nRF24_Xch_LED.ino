@@ -31,7 +31,7 @@ const byte address[] = "jirka";
 #define RX_BATTERY_VOLTAGE    4.2  // Maximum nominal battery voltage
 #define RX_MONITORED_VOLTAGE  3.45 // Minimum battery voltage for alarm
 
-// Set the number of channels according to the controls (max 7 / A0 to A6)
+// Set the number of channels according to the controls (max. 7 / A0 to A6)
 #define RC_CHANNELS  2
 
 // Control range value
@@ -70,7 +70,7 @@ const byte address[] = "jirka";
 // ADC6   -    A6
 // ADC7   -    A7
 
-// Analog input pin array for pots (possible combination, max 7)
+// Analog input pin array for pots (possible combination, max. 7)
 const byte pins_pots[] = {A0, A1, A2, A3, A4, A5, A6};
 
 // LED alarm
@@ -95,7 +95,7 @@ const byte pins_pots[] = {A0, A1, A2, A3, A4, A5, A6};
 RF24 radio(PIN_CE, PIN_CSN);
 
 //*********************************************************************************************************************
-// Sent data array (max 32 bytes)
+// Sent data array (max. 32 bytes)
 //*********************************************************************************************************************
 unsigned int rc_packet[RC_CHANNELS] = {1500};
 byte rc_packet_size = RC_CHANNELS * 2; // For one control channel with a value of 1000 to 2000 we need 2 bytes(packets)
