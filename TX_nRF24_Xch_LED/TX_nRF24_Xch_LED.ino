@@ -1,12 +1,12 @@
 /*
   ****************************************************************************************************************
-  RC transmitter
-  **************
-  RC transmitter with 1 to 7 channels from my repository https://github.com/stanekTM/TX_nRF24_Xch_LED
+  RC transmitter with 1 to 7 channels
+  ***********************************
+  RC transmitter from my repository https://github.com/stanekTM/TX_nRF24_Xch_LED
   
-  Includes nRF24L01+ transceiver and ATmega328P processor.
+  Hardware includes nRF24L01+ transceiver and ATmega328P processor.
   
-  This RC transmitter works with RC receiver from my repository https://github.com/stanekTM/RX_nRF24_Motor_Servo
+  This RC transmitter works with RC receiver from my repository https://github.com/stanekTM/RX_nRF24_Stanek
   
   Thanks to "Phil_G" http://www.singlechannel.co.uk for the calibration and reversal routine used in the code.
   ****************************************************************************************************************
