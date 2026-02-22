@@ -19,9 +19,9 @@
 #include <EEPROM.h>
 
 // Setting a unique address (5 bytes number or character)
-const byte address[] = "jirka";
+const byte address[6] = "jirka";
 
-// RF communication channel setting (0-125, 2.4Ghz + 76 = 2.476Ghz)
+// RF channel setting 0 to 125 (2.4GHz to 2.525GHz)
 #define RF_CHANNEL         76
 
 // TX/RX alarm voltage setting
@@ -40,9 +40,9 @@ const byte address[] = "jirka";
 #define MAX_CONTROL_VAL  2000
 
 // ATmega328P/PB pins overview
-// PD0 - D0   PWM  328PB
-// PD1 - D1   PWM  328PB
-// PD2 - D2   PWM  328PB
+// PD0 - D0   PWM  ATmega328PB
+// PD1 - D1   PWM  ATmega328PB
+// PD2 - D2   PWM  ATmega328PB
 // PD3 - D3   PWM
 // PD4 - D4
 // PD5 - D5   PWM
@@ -63,15 +63,15 @@ const byte address[] = "jirka";
 // PB6 - D20        XTAL1
 // PB7 - D21        XTAL2
 // PC6 - D22        RESET
-// PE0 - D23        328PB
-// PE1 - D24        328PB
-// PE2 - D25 / A6   328PB
-// PE3 - D26 / A7   328PB
+// PE0 - D23        ATmega328PB
+// PE1 - D24        ATmega328PB
+// PE2 - D25 / A6   ATmega328PB
+// PE3 - D26 / A7   ATmega328PB
 // ADC6   -    A6
 // ADC7   -    A7
 
 // Analog input pin array for pots (possible combination, max. 7)
-const byte pins_pots[] = {A0, A1, A2, A3, A4, A5, A6};
+const byte pins_pots[7] = {A1, A0, A2, A3, A4, A5, A6};
 
 // LED alarm
 #define PIN_LED           6
@@ -211,7 +211,7 @@ void setup()
   
   calibrate_reverse_pots();
   
-  // Define the radio communication
+  // Radio setup
   radio.begin();
   radio.setAutoAck(1);
   radio.enableAckPayload();
