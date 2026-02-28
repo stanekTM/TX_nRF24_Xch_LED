@@ -7,8 +7,6 @@
   Hardware includes nRF24L01+ transceiver and ATmega328P processor.
   
   This RC transmitter works with RC receiver from my repository https://github.com/stanekTM/RX_nRF24_Stanek
-  
-  Thanks to "Phil_G" http://www.singlechannel.co.uk for the calibration and reversal routine used in the code.
   ****************************************************************************************************************
 */
 
@@ -32,7 +30,7 @@ const byte address[6] = "jirka";
 #define RX_MONITORED_VOLTAGE  3.45 // Minimum battery voltage for alarm
 
 // Set the number of channels according to the controls (max. 7 / A0 to A6)
-#define RC_CHANNELS  2
+#define RC_CHANNELS  4
 
 // Control range value
 #define MIN_CONTROL_VAL  1000
@@ -170,19 +168,20 @@ void calibrate_reverse_pots()
   {
     for (i = 0; i < RC_CHANNELS; i++)
     {
-      EEPROMWriteInt(i * 6,     max_pots_calib[i]); // EEPROM locations  0,  6, 12, 18 (decimal)
-      EEPROMWriteInt(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations  2,  8, 14, 20 (decimal)
-      EEPROMWriteInt(i * 6 + 4, min_pots_calib[i]); // EEPROM locations  4, 10, 16, 22 (decimal)
+      EEPROM.put(i * 6,     max_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
+      EEPROM.put(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations 2,  8, 14, 20, 26, 32, 38
+      EEPROM.put(i * 6 + 4, min_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
     }
     calibrate = 1;
   }
   
   for (i = 0; i < RC_CHANNELS; i++)
   {
-    max_pots_calib[i] = EEPROMReadInt(i * 6);     // EEPROM locations  0,  6, 12, 18 (decimal)
-    mid_pots_calib[i] = EEPROMReadInt(i * 6 + 2); // EEPROM locations  2,  8, 14, 20 (decimal)
-    min_pots_calib[i] = EEPROMReadInt(i * 6 + 4); // EEPROM locations  4, 10, 16, 22 (decimal)
-    reverse[i] = EEPROM.read(i + 24) & 1;         // EEPROM locations 24, 25, 26, 27 (decimal)
+    EEPROM.get(i * 6,     max_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
+    EEPROM.get(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations 2,  8, 14, 20, 26, 32, 38
+    EEPROM.get(i * 6 + 4, min_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
+    
+    reverse[i] = EEPROM.read(i + 41) & 1;     // EEPROM locations 41, 42, 43, 44, 45, 46, 47
   }
   
   // Check for reversing, stick over on power-up
@@ -193,7 +192,7 @@ void calibrate_reverse_pots()
     if (pots_value[i] < MIN_CONTROL_VAL + 50 || pots_value[i] > MAX_CONTROL_VAL - 50)
     {
       reverse[i] ^= B00000001;
-      EEPROM.write(24 + i, reverse[i]);
+      EEPROM.update(i + 41, reverse[i]);
     }
   }
 }
@@ -313,7 +312,7 @@ void LED_mode()
 // LED blink function
 //*********************************************************************************************************************
 unsigned long led_time = 0;
-bool led_state;
+bool led_state = 0;
 
 void blink(uint8_t pin, uint16_t interval)
 {
@@ -325,26 +324,5 @@ void blink(uint8_t pin, uint16_t interval)
     
     digitalWrite(pin, led_state);
   }
-}
-
-//*********************************************************************************************************************
-// This function will write a 2 byte integer to the eeprom at the specified address and address + 1
-//*********************************************************************************************************************
-void EEPROMWriteInt(int p_address, int p_value)
-{
-  byte lowByte = p_value % 256;
-  byte highByte = p_value / 256;
-  EEPROM.write(p_address, lowByte);
-  EEPROM.write(p_address + 1, highByte);
-}
-
-//*********************************************************************************************************************
-// This function will read a 2 byte integer from the eeprom at the specified address and address + 1
-//*********************************************************************************************************************
-unsigned int EEPROMReadInt(int p_address)
-{
-  byte lowByte = EEPROM.read(p_address);
-  byte highByte = EEPROM.read(p_address + 1);
-  return lowByte + highByte * 256;
 }
  
