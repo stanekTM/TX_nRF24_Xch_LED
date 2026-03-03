@@ -148,7 +148,7 @@ bool calibrate = 1;
 
 void calibrate_reverse_pots()
 {
-  while (digitalRead(PIN_BUTTON_CALIB) == 0)
+  while (digitalRead(PIN_BUTTON_CALIB) == LOW)
   {
     calibrate = 0;
     
@@ -162,24 +162,24 @@ void calibrate_reverse_pots()
       
       mid_pots_calib[i] = raw_pots;
     }
-  } // Calibrate button released
+  }
   
   if (calibrate == 0)
   {
     for (i = 0; i < RC_CHANNELS; i++)
     {
-      EEPROM.put(i * 6,     max_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
+      EEPROM.put(i * 6,     min_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
       EEPROM.put(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations 2,  8, 14, 20, 26, 32, 38
-      EEPROM.put(i * 6 + 4, min_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
+      EEPROM.put(i * 6 + 4, max_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
     }
     calibrate = 1;
   }
   
   for (i = 0; i < RC_CHANNELS; i++)
   {
-    EEPROM.get(i * 6,     max_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
+    EEPROM.get(i * 6,     min_pots_calib[i]); // EEPROM locations 0,  6, 12, 18, 24, 30, 36
     EEPROM.get(i * 6 + 2, mid_pots_calib[i]); // EEPROM locations 2,  8, 14, 20, 26, 32, 38
-    EEPROM.get(i * 6 + 4, min_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
+    EEPROM.get(i * 6 + 4, max_pots_calib[i]); // EEPROM locations 4, 10, 16, 22, 28, 34, 40
     
     reverse[i] = EEPROM.read(i + 41) & 1;     // EEPROM locations 41, 42, 43, 44, 45, 46, 47
   }
