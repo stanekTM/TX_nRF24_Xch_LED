@@ -17,7 +17,7 @@
 #include <EEPROM.h>
 
 // Setting a unique address (5 bytes number or character)
-const byte address[6] = "jirka";
+const uint8_t address[6] = "jirka";
 
 // RF channel setting 0 to 125 (2.4GHz to 2.525GHz)
 #define RF_CHANNEL         76
@@ -69,7 +69,7 @@ const byte address[6] = "jirka";
 // ADC7   -    A7
 
 // Analog input pin array for pots (possible combination, max. 7)
-const byte pins_pots[7] = {A0, A1, A2, A3, A4, A5, A6};
+const uint8_t pins_pots[7] = {A0, A1, A2, A3, A4, A5, A6};
 
 // LED alarm
 #define PIN_LED           6
@@ -95,29 +95,29 @@ RF24 radio(PIN_CE, PIN_CSN);
 //*********************************************************************************************************************
 // Sent data array (max. 32 bytes)
 //*********************************************************************************************************************
-unsigned int rc_packet[RC_CHANNELS] = {1500};
-byte rc_packet_size = RC_CHANNELS * 2; // For one control channel with a value of 1000 to 2000 we need 2 bytes(packets)
+uint16_t rc_packet[RC_CHANNELS] = {1500};
 
 //*********************************************************************************************************************
 // Structure of received ACK data
 //*********************************************************************************************************************
-struct telemetry_packet_size
+struct telemetry_packet
 {
-  byte rssi;    // Not used yet
-  byte batt_A1 = 255;
-  byte batt_A2; // Not used yet
-};
-telemetry_packet_size telemetry_packet;
+  uint8_t rssi;    // Not used yet
+  uint8_t batt_A1 = 255;
+  uint8_t batt_A2; // Not used yet
+}
+telemetry_packet;
 
 //*********************************************************************************************************************
 // Read pots
 //*********************************************************************************************************************
-int i, raw_pots;
-int pots_value[RC_CHANNELS] = {1500};
-int min_pots_calib[RC_CHANNELS] = {0};
-int mid_pots_calib[RC_CHANNELS] = {512};
-int max_pots_calib[RC_CHANNELS] = {1023};
-byte reverse[RC_CHANNELS] = {0};
+uint8_t i;
+uint16_t raw_pots;
+uint16_t pots_value[RC_CHANNELS] = {1500};
+uint16_t min_pots_calib[RC_CHANNELS] = {0};
+uint16_t mid_pots_calib[RC_CHANNELS] = {512};
+uint16_t max_pots_calib[RC_CHANNELS] = {1023};
+uint8_t reverse[RC_CHANNELS] = {0};
 
 void read_pots()
 {
@@ -238,15 +238,15 @@ void loop()
 //*********************************************************************************************************************
 // Send and receive data
 //*********************************************************************************************************************
-unsigned long rf_timeout = 0;
+uint32_t rf_timeout = 0;
 
 void send_and_receive_data()
 {
-  if (radio.write(&rc_packet, rc_packet_size))
+  if (radio.write(&rc_packet, sizeof(rc_packet)))
   {
     if (radio.available())
     {
-      radio.read(&telemetry_packet, sizeof(telemetry_packet_size));
+      radio.read(&telemetry_packet, sizeof(telemetry_packet));
       
       rf_timeout = millis();
     }
@@ -311,10 +311,10 @@ void LED_mode()
 //*********************************************************************************************************************
 // LED blink function
 //*********************************************************************************************************************
-unsigned long led_time = 0;
+uint32_t led_time = 0;
 bool led_state = 0;
 
-void blink(uint8_t pin, uint16_t interval)
+void blink(const uint8_t pin, uint16_t interval)
 {
   if (millis() - led_time > interval)
   {
