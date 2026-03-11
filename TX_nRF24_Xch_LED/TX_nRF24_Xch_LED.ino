@@ -17,7 +17,7 @@
 #include <EEPROM.h>
 
 // Setting a unique address (5 bytes number or character)
-const uint8_t address[6] = "jirka";
+const uint8_t RF_address[6] = "jirka";
 
 // RF channel setting 0 to 125 (2.4GHz to 2.525GHz)
 #define RF_CHANNEL         76
@@ -93,9 +93,14 @@ const uint8_t pins_pots[7] = {A0, A1, A2, A3, A4, A5, A6};
 RF24 radio(PIN_CE, PIN_CSN);
 
 //*********************************************************************************************************************
-// Sent data array (max. 32 bytes)
+// Structure of sent data (max. 32 bytes)
 //*********************************************************************************************************************
-uint16_t rc_packet[RC_CHANNELS] = {1500};
+struct tx_packet
+{
+  bool fail_safe_flag = 0; // Not used yet
+  uint16_t rc_data[RC_CHANNELS] = {1500};
+}
+tx_packet;
 
 //*********************************************************************************************************************
 // Structure of received ACK data
@@ -136,9 +141,9 @@ void read_pots()
     
     if (reverse[i] == 1) pots_value[i] = (MIN_CONTROL_VAL + MAX_CONTROL_VAL) - pots_value[i];
     
-    rc_packet[i] = pots_value[i];
+    tx_packet.rc_data[i] = pots_value[i];
   }
-  //Serial.println(rc_packet[0]);
+  //Serial.println(tx_packet.rc_data[0]);
 }
 
 //*********************************************************************************************************************
@@ -220,7 +225,7 @@ void setup()
   radio.setDataRate(RF24_250KBPS);
   radio.setPALevel(RF24_PA_MIN); // RF24_PA_MIN (-18dBm), RF24_PA_LOW (-12dBm), RF24_PA_HIGH (-6dbm), RF24_PA_MAX (0dBm)
   radio.stopListening();
-  radio.openWritingPipe(address);
+  radio.openWritingPipe(RF_address);
 }
 
 //*********************************************************************************************************************
@@ -242,7 +247,7 @@ uint32_t rf_timeout = 0;
 
 void send_and_receive_data()
 {
-  if (radio.write(&rc_packet, sizeof(rc_packet)))
+  if (radio.write(&tx_packet, sizeof(tx_packet)))
   {
     if (radio.available())
     {
