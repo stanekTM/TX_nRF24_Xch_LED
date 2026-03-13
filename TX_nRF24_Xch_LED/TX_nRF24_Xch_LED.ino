@@ -105,13 +105,13 @@ tx_packet;
 //*********************************************************************************************************************
 // Structure of received ACK data
 //*********************************************************************************************************************
-struct telemetry_packet
+struct rx_ack_packet
 {
   uint8_t rssi;    // Not used yet
   uint8_t batt_A1 = 255;
   uint8_t batt_A2; // Not used yet
 }
-telemetry_packet;
+rx_ack_packet;
 
 //*********************************************************************************************************************
 // Read pots
@@ -251,7 +251,7 @@ void send_and_receive_data()
   {
     if (radio.available())
     {
-      radio.read(&telemetry_packet, sizeof(telemetry_packet));
+      radio.read(&rx_ack_packet, sizeof(rx_ack_packet));
       
       rf_timeout = millis();
     }
@@ -278,7 +278,7 @@ bool previous_state_batt = 0;
 
 void RX_batt_monitoring()
 {
-  rx_low_batt = telemetry_packet.batt_A1 <= (255 / RX_BATTERY_VOLTAGE) * RX_MONITORED_VOLTAGE;
+  rx_low_batt = rx_ack_packet.batt_A1 <= (255 / RX_BATTERY_VOLTAGE) * RX_MONITORED_VOLTAGE;
   
   // Battery alarm lock
   if (rx_low_batt)
@@ -287,7 +287,7 @@ void RX_batt_monitoring()
   }
   rx_low_batt = previous_state_batt;
   
-  //Serial.println(telemetry_packet.batt_A1);
+  //Serial.println(rx_ack_packet.batt_A1);
 }
 
 //*********************************************************************************************************************
