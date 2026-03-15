@@ -3,9 +3,9 @@ Hardware includes nRF24L01+ transceiver and ATmega328P processor.
 
 Telemetry monitors receiver voltage using LED indication.
 
-The code is Arduino.
-
 This RC transmitter works with RC receiver from my repository [**RX_nRF24_Stanek**](https://github.com/stanekTM/RX_nRF24_Stanek)
+
+The code is Arduino.
 
 ### LED mode
 * Normal mode, LED is lit
