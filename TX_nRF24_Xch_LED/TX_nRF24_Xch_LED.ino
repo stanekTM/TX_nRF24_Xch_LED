@@ -98,7 +98,7 @@ RF24 radio(PIN_CE, PIN_CSN);
 struct tx_packet
 {
   bool fail_safe_flag = 0; // Not used yet
-  uint16_t rc_data[RC_CHANNELS] = {1500};
+  uint16_t rc_data[RC_CHANNELS];
 }
 tx_packet;
 
@@ -118,11 +118,11 @@ rx_ack_packet;
 //*********************************************************************************************************************
 uint8_t i;
 uint16_t raw_pots;
-uint16_t pots_value[RC_CHANNELS] = {1500};
-uint16_t min_pots_calib[RC_CHANNELS] = {0};
-uint16_t mid_pots_calib[RC_CHANNELS] = {512};
-uint16_t max_pots_calib[RC_CHANNELS] = {1023};
-uint8_t reverse[RC_CHANNELS] = {0};
+uint16_t pots_value[RC_CHANNELS];
+uint16_t min_pots_calib[RC_CHANNELS];
+uint16_t mid_pots_calib[RC_CHANNELS];
+uint16_t max_pots_calib[RC_CHANNELS];
+uint8_t reverse[RC_CHANNELS];
 
 void read_pots()
 {
@@ -212,6 +212,17 @@ void setup()
   pinMode(PIN_LED, OUTPUT);
   pinMode(PIN_BATTERY, INPUT);
   pinMode(PIN_BUTTON_CALIB, INPUT_PULLUP);
+  
+  // Init all fields
+  for (i = 0; i < RC_CHANNELS; i++)
+  {
+    tx_packet.rc_data[i] = 1500;
+    pots_value[i] = 1500;
+    min_pots_calib[i] = 0;
+    mid_pots_calib[i] = 512;
+    max_pots_calib[i] = 1023;
+    reverse[i] = 0;
+  }
   
   calibrate_reverse_pots();
   
