@@ -213,7 +213,7 @@ void setup()
   pinMode(PIN_BATTERY, INPUT);
   pinMode(PIN_BUTTON_CALIB, INPUT_PULLUP);
   
-  // Init all fields
+  // Init all arrays
   for (i = 0; i < RC_CHANNELS; i++)
   {
     tx_packet.rc_data[i] = 1500;
